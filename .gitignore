@@ -1,0 +1,80 @@
+############################
+# ANGULAR
+############################
+
+# Compiled output
+/dist/
+/tmp/
+/out-tsc/
+/bazel-out/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Angular cache
+/.angular/cache/
+/coverage/
+/.typings/
+__screenshots__/
+
+############################
+# DJANGO
+############################
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Django stuff
+*.log
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Environment variables
+.env
+.env.*
+
+############################
+# IDEs & Editors
+############################
+
+.idea/
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+############################
+# System files
+############################
+
+.DS_Store
+Thumbs.db
+
+############################
+# Misc
+############################
+
+.sass-cache/
+connect.lock
+libpeerconnection.log
+testem.log
