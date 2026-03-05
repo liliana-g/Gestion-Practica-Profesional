@@ -1,0 +1,99 @@
+<div class="flex min-h-screen bg-gray-50">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-indigo-700 text-white shadow-xl">
+
+        <div class="p-6">
+            <h1 class="text-xl font-bold border-b border-indigo-500 pb-4">
+                Portal Secretaria
+            </h1>
+        </div>
+
+        <nav class="mt-4 px-4 space-y-2">
+
+            <!-- Solicitudes -->
+            <a routerLink="solicitudes" routerLinkActive="bg-indigo-800 shadow-inner"
+                class="flex items-center px-4 py-3 rounded-lg hover:bg-indigo-600 transition-colors group">
+
+                <svg class="w-5 h-5 mr-3 text-indigo-300 group-hover:text-white" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+
+                </svg>
+
+                Solicitudes
+
+            </a>
+
+            <!-- Practicas -->
+            <a routerLink="practicas" routerLinkActive="bg-indigo-800 shadow-inner"
+                class="flex items-center px-4 py-3 rounded-lg hover:bg-indigo-600 transition-colors group">
+
+                <svg class="w-5 h-5 mr-3 text-indigo-300 group-hover:text-white" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8c-3.866 0-7 1.79-7 4s3.134 4 7 4 7-1.79 7-4-3.134-4-7-4z" />
+
+                </svg>
+
+                Prácticas
+
+            </a>
+
+            <!-- Informes -->
+            <a routerLink="revisar-informes" routerLinkActive="bg-indigo-800 shadow-inner"
+                class="flex items-center px-4 py-3 rounded-lg hover:bg-indigo-600 transition-colors group">
+
+                <svg class="w-5 h-5 mr-3 text-indigo-300 group-hover:text-white" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 17v-6h13M9 17l3-3m-3 3l-3-3" />
+
+                </svg>
+
+                Revisar Informes
+
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="flex-1">
+
+        <!-- HEADER -->
+        <header class="bg-white shadow-sm py-4 px-8 flex justify-between items-center">
+
+            <h2 class="text-lg font-semibold text-gray-700">
+                Panel Secretaria
+            </h2>
+
+            <button class="text-sm text-red-600 hover:text-red-800 font-medium" (click)="logout()">
+
+                Cerrar Sesión
+
+            </button>
+
+        </header>
+
+
+        <!-- CONTENT -->
+        <div class="p-8">
+
+            <div class="bg-white rounded-lg p-6 shadow-sm min-h-[80vh]">
+
+                <router-outlet></router-outlet>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>

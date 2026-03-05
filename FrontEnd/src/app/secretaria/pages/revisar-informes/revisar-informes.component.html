@@ -1,0 +1,171 @@
+<div class="max-w-6xl mx-auto mt-10 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+
+    <!-- HEADER -->
+    <div class="px-8 py-6 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+
+        <div>
+            <h2 class="text-2xl font-extrabold text-gray-800">
+                Informes de Práctica
+            </h2>
+            <p class="text-sm text-gray-500 mt-1">
+                Revisión de informes entregados por alumnos
+            </p>
+        </div>
+
+        @if(!loading){
+        <span class="bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full uppercase">
+            {{ informes.length }} registros
+        </span>
+        }
+
+    </div>
+
+
+    <!-- CONTENT -->
+    <div class="p-0">
+
+        @if(loading){
+
+        <div class="flex flex-col items-center py-20 space-y-4">
+
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+
+            <p class="text-gray-500 font-medium animate-pulse">
+                Cargando informes...
+            </p>
+
+        </div>
+
+        } @else {
+
+        @if(informes.length > 0){
+
+        <div class="overflow-x-auto">
+
+            <table class="w-full text-left border-collapse">
+
+                <thead class="bg-gray-100 border-b border-gray-200">
+
+                    <tr>
+                        <th class="p-4 text-xs font-semibold text-gray-600 uppercase">Alumno</th>
+                        <th class="p-4 text-xs font-semibold text-gray-600 uppercase">Informe</th>
+                        <th class="p-4 text-xs font-semibold text-gray-600 uppercase text-center">Estado</th>
+                        <th class="p-4 text-xs font-semibold text-gray-600 uppercase text-center">Acciones</th>
+                    </tr>
+
+                </thead>
+
+                <tbody class="divide-y divide-gray-100">
+
+                    @for(i of informes; track i.id){
+
+                    <tr class="hover:bg-indigo-50/30">
+
+                        <!-- ALUMNO -->
+                        <td class="p-4">
+
+                            <div class="font-medium text-gray-700">
+                                {{ i.practica?.alumno?.usuario?.username }}
+                            </div>
+
+                            <div class="text-xs text-gray-400">
+                                Práctica #{{ i.practica?.id }}
+                            </div>
+
+                        </td>
+
+
+                        <!-- INFORME -->
+                        <td class="p-4">
+
+                            <a [href]="i.archivo" target="_blank" class="text-indigo-600 hover:underline font-medium">
+
+                                Ver informe
+
+                            </a>
+
+                        </td>
+
+
+                        <!-- ESTADO -->
+                        <td class="p-4 text-center">
+
+                            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase" [ngClass]="{
+
+                                'bg-amber-100 text-amber-700': i.estado === 'PENDIENTE',
+                                'bg-emerald-100 text-emerald-700': i.estado === 'APROBADO',
+                                'bg-rose-100 text-rose-700': i.estado === 'RECHAZADO'
+
+                            }">
+
+                                {{ i.estado }}
+
+                            </span>
+
+                        </td>
+
+
+                        <!-- ACCIONES -->
+                        <td class="p-4 text-center">
+
+                            @if(i.estado === 'PENDIENTE'){
+
+                            <div class="flex justify-center gap-2">
+
+                                <button (click)="aprobar(i)"
+                                    class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700">
+
+                                    Aprobar
+
+                                </button>
+
+                                <button (click)="rechazar(i)"
+                                    class="px-3 py-1.5 bg-rose-600 text-white text-xs font-bold rounded-lg hover:bg-rose-700">
+
+                                    Rechazar
+
+                                </button>
+
+                            </div>
+
+                            } @else {
+
+                            <span class="text-xs text-gray-400 italic">
+                                Revisado
+                            </span>
+
+                            }
+
+                        </td>
+
+                    </tr>
+
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        } @else {
+
+        <div class="py-20 text-center">
+
+            <h3 class="text-lg font-medium text-gray-900">
+                No hay informes pendientes
+            </h3>
+
+            <p class="text-gray-500">
+                Cuando los alumnos suban informes aparecerán aquí
+            </p>
+
+        </div>
+
+        }
+
+        }
+
+    </div>
+
+</div>

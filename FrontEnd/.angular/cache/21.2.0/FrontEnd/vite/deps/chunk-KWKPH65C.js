@@ -29,6 +29,26 @@ var __objRest = (source, exclude) => {
     }
   return target;
 };
+var __async = (__this, __arguments, generator) => {
+  return new Promise((resolve, reject) => {
+    var fulfilled = (value) => {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var rejected = (value) => {
+      try {
+        step(generator.throw(value));
+      } catch (e) {
+        reject(e);
+      }
+    };
+    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
+    step((generator = generator.apply(__this, __arguments)).next());
+  });
+};
 
 // node_modules/@angular/core/fesm2022/_effect-chunk.mjs
 var activeConsumer = null;
@@ -3019,6 +3039,49 @@ function defer(observableFactory) {
   });
 }
 
+// node_modules/rxjs/dist/esm5/internal/observable/forkJoin.js
+function forkJoin() {
+  var args = [];
+  for (var _i = 0; _i < arguments.length; _i++) {
+    args[_i] = arguments[_i];
+  }
+  var resultSelector = popResultSelector(args);
+  var _a = argsArgArrayOrObject(args), sources = _a.args, keys = _a.keys;
+  var result = new Observable(function(subscriber) {
+    var length = sources.length;
+    if (!length) {
+      subscriber.complete();
+      return;
+    }
+    var values = new Array(length);
+    var remainingCompletions = length;
+    var remainingEmissions = length;
+    var _loop_1 = function(sourceIndex2) {
+      var hasValue = false;
+      innerFrom(sources[sourceIndex2]).subscribe(createOperatorSubscriber(subscriber, function(value) {
+        if (!hasValue) {
+          hasValue = true;
+          remainingEmissions--;
+        }
+        values[sourceIndex2] = value;
+      }, function() {
+        return remainingCompletions--;
+      }, void 0, function() {
+        if (!remainingCompletions || !hasValue) {
+          if (!remainingEmissions) {
+            subscriber.next(keys ? createObject(keys, values) : values);
+          }
+          subscriber.complete();
+        }
+      }));
+    };
+    for (var sourceIndex = 0; sourceIndex < length; sourceIndex++) {
+      _loop_1(sourceIndex);
+    }
+  });
+  return resultSelector ? result.pipe(mapOneOrManyArgs(resultSelector)) : result;
+}
+
 // node_modules/rxjs/dist/esm5/internal/observable/never.js
 var NEVER = new Observable(noop);
 
@@ -3382,7 +3445,7 @@ var formatter = {
     if (!isSignal(sig)) return false;
     try {
       sig();
-    } catch {
+    } catch (e) {
       return false;
     }
     return !config2?.ngSkipFormatting;
@@ -5741,7 +5804,7 @@ function scheduleCallbackWithRafRace(callback) {
       if (timeoutId !== void 0) {
         clearTimeout(timeoutId);
       }
-    } catch {
+    } catch (e) {
     }
   }
   timeoutId = setTimeout(() => {
@@ -9214,7 +9277,7 @@ function getPolicy$1() {
           createScript: (s) => s,
           createScriptURL: (s) => s
         });
-      } catch {
+      } catch (e) {
       }
     }
   }
@@ -9237,7 +9300,7 @@ function getPolicy() {
           createScript: (s) => s,
           createScriptURL: (s) => s
         });
-      } catch {
+      } catch (e) {
       }
     }
   }
@@ -9333,7 +9396,7 @@ var DOMParserHelper = class {
       }
       body.firstChild?.remove();
       return body;
-    } catch {
+    } catch (e) {
       return null;
     }
   }
@@ -9354,7 +9417,7 @@ var InertDocumentHelper = class {
 function isDOMParserAvailable() {
   try {
     return !!new window.DOMParser().parseFromString(trustedHTMLFromString(""), "text/html");
-  } catch {
+  } catch (e) {
     return false;
   }
 }
@@ -10831,7 +10894,7 @@ function maybeQueueEnterAnimation(parentLView, parent, tNode, injector) {
 function runLeaveAnimationsWithCallback(lView, tNode, injector, callback) {
   try {
     injector.get(INJECTOR$1);
-  } catch {
+  } catch (e) {
     return callback(false);
   }
   const animations = lView?.[ANIMATIONS];
@@ -11687,7 +11750,7 @@ function handleUncaughtError(lView, error) {
   let errorHandler;
   try {
     errorHandler = injector.get(INTERNAL_APPLICATION_ERROR_HANDLER, null);
-  } catch {
+  } catch (e) {
     errorHandler = null;
   }
   errorHandler?.(error);
@@ -12429,7 +12492,7 @@ var ViewRef = class {
     if (ngDevMode) {
       try {
         this.exhaustive ??= this._lView[INJECTOR].get(UseExhaustiveCheckNoChanges, USE_EXHAUSTIVE_CHECK_NO_CHANGES_DEFAULT);
-      } catch {
+      } catch (e) {
         this.exhaustive = USE_EXHAUSTIVE_CHECK_NO_CHANGES_DEFAULT;
       }
       checkNoChangesInternal(this._lView, this.exhaustive);
@@ -15762,50 +15825,52 @@ function refreshSignalQuery(node, firstOnly) {
 }
 var componentResourceResolutionQueue = /* @__PURE__ */ new Map();
 var componentDefPendingResolution = /* @__PURE__ */ new Set();
-async function resolveComponentResources(resourceResolver) {
-  const currentQueue = componentResourceResolutionQueue;
-  componentResourceResolutionQueue = /* @__PURE__ */ new Map();
-  const urlCache = /* @__PURE__ */ new Map();
-  function cachedResourceResolve(url) {
-    const promiseCached = urlCache.get(url);
-    if (promiseCached) {
-      return promiseCached;
+function resolveComponentResources(resourceResolver) {
+  return __async(this, null, function* () {
+    const currentQueue = componentResourceResolutionQueue;
+    componentResourceResolutionQueue = /* @__PURE__ */ new Map();
+    const urlCache = /* @__PURE__ */ new Map();
+    function cachedResourceResolve(url) {
+      const promiseCached = urlCache.get(url);
+      if (promiseCached) {
+        return promiseCached;
+      }
+      const promise = resourceResolver(url).then((response) => unwrapResponse(url, response));
+      urlCache.set(url, promise);
+      return promise;
     }
-    const promise = resourceResolver(url).then((response) => unwrapResponse(url, response));
-    urlCache.set(url, promise);
-    return promise;
-  }
-  const resolutionPromises = Array.from(currentQueue).map(async ([type, component]) => {
-    if (component.styleUrl && component.styleUrls?.length) {
-      throw new Error("@Component cannot define both `styleUrl` and `styleUrls`. Use `styleUrl` if the component has one stylesheet, or `styleUrls` if it has multiple");
-    }
-    const componentTasks = [];
-    if (component.templateUrl) {
-      componentTasks.push(cachedResourceResolve(component.templateUrl).then((template) => {
-        component.template = template;
-      }));
-    }
-    const styles = typeof component.styles === "string" ? [component.styles] : component.styles ?? [];
-    component.styles = styles;
-    let {
-      styleUrl,
-      styleUrls
-    } = component;
-    if (styleUrl) {
-      styleUrls = [styleUrl];
-      component.styleUrl = void 0;
-    }
-    if (styleUrls?.length) {
-      const allFetched = Promise.all(styleUrls.map((url) => cachedResourceResolve(url))).then((fetchedStyles) => {
-        styles.push(...fetchedStyles);
-        component.styleUrls = void 0;
-      });
-      componentTasks.push(allFetched);
-    }
-    await Promise.all(componentTasks);
-    componentDefPendingResolution.delete(type);
+    const resolutionPromises = Array.from(currentQueue).map((_0) => __async(null, [_0], function* ([type, component]) {
+      if (component.styleUrl && component.styleUrls?.length) {
+        throw new Error("@Component cannot define both `styleUrl` and `styleUrls`. Use `styleUrl` if the component has one stylesheet, or `styleUrls` if it has multiple");
+      }
+      const componentTasks = [];
+      if (component.templateUrl) {
+        componentTasks.push(cachedResourceResolve(component.templateUrl).then((template) => {
+          component.template = template;
+        }));
+      }
+      const styles = typeof component.styles === "string" ? [component.styles] : component.styles ?? [];
+      component.styles = styles;
+      let {
+        styleUrl,
+        styleUrls
+      } = component;
+      if (styleUrl) {
+        styleUrls = [styleUrl];
+        component.styleUrl = void 0;
+      }
+      if (styleUrls?.length) {
+        const allFetched = Promise.all(styleUrls.map((url) => cachedResourceResolve(url))).then((fetchedStyles) => {
+          styles.push(...fetchedStyles);
+          component.styleUrls = void 0;
+        });
+        componentTasks.push(allFetched);
+      }
+      yield Promise.all(componentTasks);
+      componentDefPendingResolution.delete(type);
+    }));
+    yield Promise.all(resolutionPromises);
   });
-  await Promise.all(resolutionPromises);
 }
 function maybeQueueResolutionOfComponentResources(type, metadata) {
   if (componentNeedsResolution(metadata)) {
@@ -15834,14 +15899,16 @@ function restoreComponentResolutionQueue(queue2) {
 function isComponentResourceResolutionQueueEmpty() {
   return componentResourceResolutionQueue.size === 0;
 }
-async function unwrapResponse(url, response) {
-  if (typeof response === "string") {
-    return response;
-  }
-  if (response.status !== void 0 && response.status !== 200) {
-    throw new RuntimeError(918, ngDevMode && `Could not load resource: ${url}. Response status: ${response.status}`);
-  }
-  return response.text();
+function unwrapResponse(url, response) {
+  return __async(this, null, function* () {
+    if (typeof response === "string") {
+      return response;
+    }
+    if (response.status !== void 0 && response.status !== 200) {
+      throw new RuntimeError(918, ngDevMode && `Could not load resource: ${url}. Response status: ${response.status}`);
+    }
+    return response.text();
+  });
 }
 var modules = /* @__PURE__ */ new Map();
 var checkForDuplicateNgModules = true;
@@ -18872,61 +18939,67 @@ function triggerDeferBlock(triggerType, lView, tNode) {
       }
   }
 }
-async function triggerHydrationFromBlockName(injector, blockName, replayQueuedEventsFn) {
-  const dehydratedBlockRegistry = injector.get(DEHYDRATED_BLOCK_REGISTRY);
-  const blocksBeingHydrated = dehydratedBlockRegistry.hydrating;
-  if (blocksBeingHydrated.has(blockName)) {
-    return;
-  }
-  const {
-    parentBlockPromise,
-    hydrationQueue
-  } = getParentBlockHydrationQueue(blockName, injector);
-  if (hydrationQueue.length === 0) return;
-  if (parentBlockPromise !== null) {
-    hydrationQueue.shift();
-  }
-  populateHydratingStateForQueue(dehydratedBlockRegistry, hydrationQueue);
-  if (parentBlockPromise !== null) {
-    await parentBlockPromise;
-  }
-  const topmostParentBlock = hydrationQueue[0];
-  if (dehydratedBlockRegistry.has(topmostParentBlock)) {
-    await triggerHydrationForBlockQueue(injector, hydrationQueue, replayQueuedEventsFn);
-  } else {
-    dehydratedBlockRegistry.awaitParentBlock(topmostParentBlock, async () => await triggerHydrationForBlockQueue(injector, hydrationQueue, replayQueuedEventsFn));
-  }
+function triggerHydrationFromBlockName(injector, blockName, replayQueuedEventsFn) {
+  return __async(this, null, function* () {
+    const dehydratedBlockRegistry = injector.get(DEHYDRATED_BLOCK_REGISTRY);
+    const blocksBeingHydrated = dehydratedBlockRegistry.hydrating;
+    if (blocksBeingHydrated.has(blockName)) {
+      return;
+    }
+    const {
+      parentBlockPromise,
+      hydrationQueue
+    } = getParentBlockHydrationQueue(blockName, injector);
+    if (hydrationQueue.length === 0) return;
+    if (parentBlockPromise !== null) {
+      hydrationQueue.shift();
+    }
+    populateHydratingStateForQueue(dehydratedBlockRegistry, hydrationQueue);
+    if (parentBlockPromise !== null) {
+      yield parentBlockPromise;
+    }
+    const topmostParentBlock = hydrationQueue[0];
+    if (dehydratedBlockRegistry.has(topmostParentBlock)) {
+      yield triggerHydrationForBlockQueue(injector, hydrationQueue, replayQueuedEventsFn);
+    } else {
+      dehydratedBlockRegistry.awaitParentBlock(topmostParentBlock, () => __async(null, null, function* () {
+        return yield triggerHydrationForBlockQueue(injector, hydrationQueue, replayQueuedEventsFn);
+      }));
+    }
+  });
 }
-async function triggerHydrationForBlockQueue(injector, hydrationQueue, replayQueuedEventsFn) {
-  const dehydratedBlockRegistry = injector.get(DEHYDRATED_BLOCK_REGISTRY);
-  const blocksBeingHydrated = dehydratedBlockRegistry.hydrating;
-  const pendingTasks = injector.get(PendingTasksInternal);
-  const taskId = pendingTasks.add();
-  for (let blockQueueIdx = 0; blockQueueIdx < hydrationQueue.length; blockQueueIdx++) {
-    const dehydratedBlockId = hydrationQueue[blockQueueIdx];
-    const dehydratedDeferBlock = dehydratedBlockRegistry.get(dehydratedBlockId);
-    if (dehydratedDeferBlock != null) {
-      await triggerResourceLoadingForHydration(dehydratedDeferBlock);
-      await nextRender(injector);
-      if (deferBlockHasErrored(dehydratedDeferBlock)) {
-        removeDehydratedViewList(dehydratedDeferBlock);
+function triggerHydrationForBlockQueue(injector, hydrationQueue, replayQueuedEventsFn) {
+  return __async(this, null, function* () {
+    const dehydratedBlockRegistry = injector.get(DEHYDRATED_BLOCK_REGISTRY);
+    const blocksBeingHydrated = dehydratedBlockRegistry.hydrating;
+    const pendingTasks = injector.get(PendingTasksInternal);
+    const taskId = pendingTasks.add();
+    for (let blockQueueIdx = 0; blockQueueIdx < hydrationQueue.length; blockQueueIdx++) {
+      const dehydratedBlockId = hydrationQueue[blockQueueIdx];
+      const dehydratedDeferBlock = dehydratedBlockRegistry.get(dehydratedBlockId);
+      if (dehydratedDeferBlock != null) {
+        yield triggerResourceLoadingForHydration(dehydratedDeferBlock);
+        yield nextRender(injector);
+        if (deferBlockHasErrored(dehydratedDeferBlock)) {
+          removeDehydratedViewList(dehydratedDeferBlock);
+          cleanupRemainingHydrationQueue(hydrationQueue.slice(blockQueueIdx), dehydratedBlockRegistry);
+          break;
+        }
+        blocksBeingHydrated.get(dehydratedBlockId).resolve();
+      } else {
+        cleanupParentContainer(blockQueueIdx, hydrationQueue, dehydratedBlockRegistry);
         cleanupRemainingHydrationQueue(hydrationQueue.slice(blockQueueIdx), dehydratedBlockRegistry);
         break;
       }
-      blocksBeingHydrated.get(dehydratedBlockId).resolve();
-    } else {
-      cleanupParentContainer(blockQueueIdx, hydrationQueue, dehydratedBlockRegistry);
-      cleanupRemainingHydrationQueue(hydrationQueue.slice(blockQueueIdx), dehydratedBlockRegistry);
-      break;
     }
-  }
-  const lastBlockName = hydrationQueue[hydrationQueue.length - 1];
-  await blocksBeingHydrated.get(lastBlockName)?.promise;
-  pendingTasks.remove(taskId);
-  if (replayQueuedEventsFn) {
-    replayQueuedEventsFn(hydrationQueue);
-  }
-  cleanupHydratedDeferBlocks(dehydratedBlockRegistry.get(lastBlockName), hydrationQueue, dehydratedBlockRegistry, injector.get(ApplicationRef));
+    const lastBlockName = hydrationQueue[hydrationQueue.length - 1];
+    yield blocksBeingHydrated.get(lastBlockName)?.promise;
+    pendingTasks.remove(taskId);
+    if (replayQueuedEventsFn) {
+      replayQueuedEventsFn(hydrationQueue);
+    }
+    cleanupHydratedDeferBlocks(dehydratedBlockRegistry.get(lastBlockName), hydrationQueue, dehydratedBlockRegistry, injector.get(ApplicationRef));
+  });
 }
 function deferBlockHasErrored(deferBlock) {
   return getLDeferBlockDetails(deferBlock.lView, deferBlock.tNode)[DEFER_BLOCK_STATE] === DeferBlockState.Error;
@@ -18955,15 +19028,17 @@ function nextRender(injector) {
     injector
   }));
 }
-async function triggerResourceLoadingForHydration(dehydratedBlock) {
-  const {
-    tNode,
-    lView
-  } = dehydratedBlock;
-  const lDetails = getLDeferBlockDetails(lView, tNode);
-  return new Promise((resolve) => {
-    onDeferBlockCompletion(lDetails, resolve);
-    triggerDeferBlock(2, lView, tNode);
+function triggerResourceLoadingForHydration(dehydratedBlock) {
+  return __async(this, null, function* () {
+    const {
+      tNode,
+      lView
+    } = dehydratedBlock;
+    const lDetails = getLDeferBlockDetails(lView, tNode);
+    return new Promise((resolve) => {
+      onDeferBlockCompletion(lDetails, resolve);
+      triggerDeferBlock(2, lView, tNode);
+    });
   });
 }
 function onDeferBlockCompletion(lDetails, callback) {
@@ -24974,58 +25049,60 @@ var ResourceImpl = class extends BaseWritableResource {
       stream: void 0
     });
   }
-  async loadEffect() {
-    const extRequest = this.extRequest();
-    const {
-      status: currentStatus,
-      previousStatus
-    } = untracked2(this.state);
-    if (extRequest.request === void 0) {
-      return;
-    } else if (currentStatus !== "loading") {
-      return;
-    }
-    this.abortInProgressLoad();
-    let resolvePendingTask = this.resolvePendingTask = this.pendingTasks.add();
-    const {
-      signal: abortSignal
-    } = this.pendingController = new AbortController();
-    try {
-      const stream = await untracked2(() => {
-        return this.loaderFn({
-          params: extRequest.request,
-          request: extRequest.request,
-          abortSignal,
-          previous: {
-            status: previousStatus
-          }
+  loadEffect() {
+    return __async(this, null, function* () {
+      const extRequest = this.extRequest();
+      const {
+        status: currentStatus,
+        previousStatus
+      } = untracked2(this.state);
+      if (extRequest.request === void 0) {
+        return;
+      } else if (currentStatus !== "loading") {
+        return;
+      }
+      this.abortInProgressLoad();
+      let resolvePendingTask = this.resolvePendingTask = this.pendingTasks.add();
+      const {
+        signal: abortSignal
+      } = this.pendingController = new AbortController();
+      try {
+        const stream = yield untracked2(() => {
+          return this.loaderFn({
+            params: extRequest.request,
+            request: extRequest.request,
+            abortSignal,
+            previous: {
+              status: previousStatus
+            }
+          });
         });
-      });
-      if (abortSignal.aborted || untracked2(this.extRequest) !== extRequest) {
-        return;
+        if (abortSignal.aborted || untracked2(this.extRequest) !== extRequest) {
+          return;
+        }
+        this.state.set({
+          extRequest,
+          status: "resolved",
+          previousStatus: "resolved",
+          stream
+        });
+      } catch (err) {
+        if (abortSignal.aborted || untracked2(this.extRequest) !== extRequest) {
+          return;
+        }
+        this.state.set({
+          extRequest,
+          status: "resolved",
+          previousStatus: "error",
+          stream: signal({
+            error: encapsulateResourceError(err)
+          }, ngDevMode ? createDebugNameObject(this.debugName, "stream") : void 0)
+        });
+      } finally {
+        resolvePendingTask?.();
+        resolvePendingTask = void 0;
       }
-      this.state.set({
-        extRequest,
-        status: "resolved",
-        previousStatus: "resolved",
-        stream
-      });
-    } catch (err) {
-      if (abortSignal.aborted || untracked2(this.extRequest) !== extRequest) {
-        return;
-      }
-      this.state.set({
-        extRequest,
-        status: "resolved",
-        previousStatus: "error",
-        stream: signal({
-          error: encapsulateResourceError(err)
-        }, ngDevMode ? createDebugNameObject(this.debugName, "stream") : void 0)
-      });
-    } finally {
-      resolvePendingTask?.();
-      resolvePendingTask = void 0;
-    }
+    });
   }
   abortInProgressLoad() {
     untracked2(() => this.pendingController?.abort());
@@ -25041,17 +25118,17 @@ function getLoader(options) {
   if (isStreamingResourceOptions(options)) {
     return options.stream;
   }
-  return async (params) => {
+  return (params) => __async(null, null, function* () {
     try {
       return signal({
-        value: await options.loader(params)
+        value: yield options.loader(params)
       }, ngDevMode ? createDebugNameObject(options.debugName, "stream") : void 0);
     } catch (err) {
       return signal({
         error: encapsulateResourceError(err)
       }, ngDevMode ? createDebugNameObject(options.debugName, "stream") : void 0);
     }
-  };
+  });
 }
 function isStreamingResourceOptions(options) {
   return !!options.stream;
@@ -28690,6 +28767,7 @@ export {
   __spreadValues,
   __spreadProps,
   __objRest,
+  __async,
   SIGNAL,
   Subscription,
   pipe,
@@ -28708,6 +28786,7 @@ export {
   mergeAll,
   concat,
   defer,
+  forkJoin,
   filter,
   catchError,
   concatMap,
@@ -29222,4 +29301,4 @@ export {
   RESPONSE_INIT,
   REQUEST_CONTEXT
 };
-//# sourceMappingURL=chunk-2M4UMX5N.js.map
+//# sourceMappingURL=chunk-KWKPH65C.js.map

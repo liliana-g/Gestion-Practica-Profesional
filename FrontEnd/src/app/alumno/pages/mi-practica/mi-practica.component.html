@@ -1,0 +1,165 @@
+<div class="max-w-3xl mx-auto mt-10 bg-white rounded-xl shadow-lg border p-8">
+
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+        Mi Práctica
+    </h2>
+
+    @if(loading){
+        <div class="text-center py-10">
+            <p class="text-gray-500">Cargando información...</p>
+        </div>
+    } @else {
+
+        @if(practica){
+
+            <div class="space-y-4 mb-10">
+                <div>
+                    <p class="text-sm text-gray-500">Empresa</p>
+                    <p class="font-semibold text-lg">{{ practica.empresa.nombre }}</p>
+                </div>
+
+                <div>
+                    <p class="text-sm text-gray-500">RUT Empresa</p>
+                    <p class="font-semibold">{{ practica.empresa.rut }}</p>
+                </div>
+
+                <div>
+                    <p class="text-sm text-gray-500">Fecha Inicio</p>
+                    <p class="font-semibold">{{ practica.fecha_inicio }}</p>
+                </div>
+
+                <div>
+                    <p class="text-sm text-gray-500">Fecha Fin</p>
+                    <p class="font-semibold">{{ practica.fecha_fin }}</p>
+                </div>
+
+                <div>
+                    <p class="text-sm text-gray-500">Estado</p>
+                    <span class="px-3 py-1 rounded-full text-xs font-bold" [ngClass]="{
+                            'bg-indigo-100 text-indigo-700': practica.estado === 'EN_PROCESO',
+                            'bg-yellow-100 text-yellow-700': practica.estado === 'INFORME_SUBIDO',
+                            'bg-green-100 text-green-700': practica.estado === 'FINALIZADA'
+                        }">
+                        {{ practica.estado }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-bold text-gray-700 mb-4">
+                    Informe de Práctica
+                </h3>
+
+                @if(debeMostrarFormulario()) {
+                    <div class="space-y-4">
+                        @if (practica.informes?.length > 0) {
+                            <div class="p-3 bg-red-50 border-l-4 border-red-400 text-red-700 text-xs">
+                                <strong>Aviso:</strong> Tu informe anterior fue rechazado. Por favor, sube uno nuevo con las correcciones indicadas en el historial.
+                            </div>
+                        }
+                        
+                        <input type="file" (change)="onFileSelected($event)" accept=".pdf" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none">
+
+                        <button (click)="subirInforme()" [disabled]="!archivo"
+                            class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-300 text-white font-bold py-3 rounded-lg transition-all active:scale-95">
+                            Subir Informe
+                        </button>
+                    </div>
+                } @else {
+                    <div class="bg-green-50 border border-green-200 p-4 rounded-lg flex items-center justify-between">
+                        <div>
+                            <p class="text-green-700 font-semibold">
+                                {{ practica.estado === 'FINALIZADA' ? 'Informe Aprobado' : 'Informe ya fue subido' }}
+                            </p>
+                            <p class="text-xs text-gray-500">
+                                Puedes visualizarlo aquí
+                            </p>
+                        </div>
+
+                        <a [href]="practica.informes[0]?.archivo" target="_blank"
+                            class="inline-flex items-center px-3 py-1 bg-white border border-indigo-200 text-indigo-600 rounded-lg text-sm font-semibold hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            Ver PDF
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <div class="border-t mt-10 pt-8">
+                <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Historial de Informes Enviados
+                </h3>
+
+                @if(practica.informes && practica.informes.length > 0) {
+                    <div class="overflow-hidden border border-gray-100 rounded-xl">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="p-3 text-xs font-semibold text-gray-500 uppercase">Documento</th>
+                                    <th class="p-3 text-xs font-semibold text-gray-500 uppercase">Estado</th>
+                                    <th class="p-3 text-xs font-semibold text-gray-500 uppercase text-center">Doc</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @for (informe of practica.informes; track informe.id) {
+                                    <tr class="hover:bg-gray-50/50 transition-colors">
+                                        <td class="p-3">
+                                            <p class="text-sm font-medium text-gray-700 truncate max-w-[150px]" [title]="informe.nombre">
+                                                {{ informe.nombre || 'Informe de Práctica' }}
+                                            </p>
+                                            <p class="text-[10px] text-gray-400">
+                                                {{ informe.fecha_subida | date:'dd/MM/yyyy HH:mm' }}
+                                            </p>
+                                        </td>
+                                        <td class="p-3">
+                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"
+                                                [ngClass]="{
+                                                    'bg-amber-100 text-amber-700': informe.estado === 'PENDIENTE' || informe.estado === 'INFORME_SUBIDO',
+                                                    'bg-green-100 text-green-700': informe.estado === 'APROBADO',
+                                                    'bg-red-100 text-red-700': informe.estado === 'RECHAZADO'
+                                                }">
+                                                {{ informe.estado }}
+                                            </span>
+                                            
+                                            @if(informe.estado === 'RECHAZADO' && informe.comentarios_revision) {
+                                                <p class="text-[11px] text-red-500 mt-1 italic leading-tight">
+                                                    <strong>Motivo:</strong> {{ informe.comentarios_revision }}
+                                                </p>
+                                            }
+                                        </td>
+                                        <td class="p-3 text-center">
+                                            <a [href]="informe.archivo" target="_blank" 
+                                               class="inline-flex p-1.5 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-600 hover:text-white transition-colors"
+                                               title="Ver PDF">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                </svg>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                } @else {
+                    <div class="bg-gray-50 rounded-lg p-6 text-center border-2 border-dashed border-gray-200">
+                        <p class="text-sm text-gray-400 italic">No hay registros de informes previos.</p>
+                    </div>
+                }
+            </div>
+
+        } @else {
+            <div class="text-center py-10">
+                <p class="text-gray-500">
+                    Aún no tienes una práctica asignada.
+                </p>
+            </div>
+        }
+    }
+</div>
