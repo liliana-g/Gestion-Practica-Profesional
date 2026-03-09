@@ -61,9 +61,7 @@
 
                         <!-- ALUMNO -->
                         <td class="p-4">
-
                             <div class="flex items-center">
-
                                 <div
                                     class="h-8 w-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs mr-3">
 
@@ -72,54 +70,39 @@
                                 </div>
 
                                 <div>
-
                                     <div class="font-medium text-gray-700">
                                         {{ s.alumno.usuario.first_name }}
                                         {{ s.alumno.usuario.last_name }}
                                     </div>
-
                                     <div class="text-xs text-gray-400">
                                         {{ s.alumno.rut }}
                                     </div>
-
                                 </div>
-
                             </div>
-
                         </td>
 
 
                         <!-- EMPRESA -->
                         <td class="p-4">
-
                             <div class="text-sm font-bold text-gray-800">
                                 {{ s.empresa?.nombre }}
                             </div>
-
                             <div class="text-xs text-gray-400">
                                 {{ s.empresa?.rut }}
                             </div>
-
                         </td>
 
 
                         <!-- ESTADO -->
                         <td class="p-4 text-center">
-
                             <span class="px-3 py-1 rounded-full text-xs font-bold uppercase" [ngClass]="{
-
                                     'bg-amber-100 text-amber-700': s.estado === 'PENDIENTE',
                                     'bg-emerald-100 text-emerald-700': s.estado === 'APROBADA',
                                     'bg-rose-100 text-rose-700': s.estado === 'RECHAZADA'
-
                                 }">
-
                                 {{ s.estado }}
-
                             </span>
-
                         </td>
-
 
                         <td class="p-4 text-sm text-gray-600">
                             <div class="flex items-center justify-between">
@@ -131,8 +114,8 @@
                                         {{ s.fecha_solicitud | date:'HH:mm' }}
                                     </div>
                                 </div>
-
                                 <a [href]="s.carta_presentacion"
+                                [id]="'link-pdf-' + s.id"
                                 target="_blank" 
                                 class="p-2 text-rose-500 hover:bg-rose-50 rounded-full transition-colors tooltip"
                                 title="Ver documento PDF">
@@ -151,18 +134,16 @@
 
                                 @if (s.estado === 'PENDIENTE') {
 
-                                <button (click)="aprobar(s)"
-                                    class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700">
-
+                                <button (click)="aprobar(s)" 
+                                        [id]="'btn-aprobar-' + s.id"
+                                        class="px-3 py-1.5 bg-emerald-600 text-white text-xs font-bold rounded-lg hover:bg-emerald-700">
                                     Aprobar
-
                                 </button>
 
-                                <button (click)="rechazar(s)"
-                                    class="px-3 py-1.5 bg-rose-600 text-white text-xs font-bold rounded-lg hover:bg-rose-700">
-
+                                <button (click)="rechazar(s)" 
+                                        [id]="'btn-rechazar-' + s.id"
+                                        class="px-3 py-1.5 bg-rose-600 text-white text-xs font-bold rounded-lg hover:bg-rose-700">
                                     Rechazar
-
                                 </button>
 
                                 } @else {
